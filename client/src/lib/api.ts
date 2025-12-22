@@ -41,35 +41,7 @@ export async function apiRequest<T = any>(
   }
 
   try {
-    // Add extra debugging for batch endpoints
-    const isBatchEndpoint = endpoint.includes('/api/filaments/batch');
-    if (isBatchEndpoint) {
-      console.log(`DEBUG: Making batch request to ${endpoint} with:`, {
-        method,
-        headers,
-        body: body ? JSON.parse(JSON.stringify(body)) : null
-      });
-    }
-
     const response = await fetch(endpoint, requestOptions);
-
-    // Add extra debugging for batch endpoints
-    if (isBatchEndpoint) {
-      console.log(`DEBUG: Batch response status:`, response.status);
-      console.log(`DEBUG: Batch response headers:`, {
-        'content-type': response.headers.get('content-type'),
-        'set-cookie': response.headers.get('set-cookie')
-      });
-
-      // Clone the response to read the body for debugging
-      const clonedRes = response.clone();
-      try {
-        const textResponse = await clonedRes.text();
-        console.log(`DEBUG: Batch response body:`, textResponse);
-      } catch (err) {
-        console.error(`DEBUG: Error reading response body:`, err);
-      }
-    }
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -85,13 +57,6 @@ export async function apiRequest<T = any>(
         }
       }
 
-      // Add extra debugging for batch endpoints
-      if (isBatchEndpoint) {
-        console.error(`DEBUG: Batch request error:`, {
-          status: response.status,
-          errorData
-        });
-      }
 
       const error: any = new Error(
         errorData.message || `API request failed with status ${response.status}`
@@ -109,17 +74,6 @@ export async function apiRequest<T = any>(
 
     return response.json();
   } catch (error: any) {
-    // Add extra debugging for batch endpoints
-    const isBatchEndpoint = endpoint.includes('/api/filaments/batch');
-    if (isBatchEndpoint) {
-      console.error(`DEBUG: Caught error in batch request to ${endpoint}:`, {
-        message: error.message,
-        status: error.status,
-        response: error.response,
-        stack: error.stack
-      });
-    }
-
     // Only log errors if not silent and not a 401 on auth endpoint or public endpoint
     if (!error.silent && !(error.status === 401 && (isAuthEndpoint || isPublicEndpoint))) {
       console.error(`API request to ${endpoint} failed:`, error);

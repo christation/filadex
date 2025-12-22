@@ -3,6 +3,7 @@ PLA Basic
 PLA Matte
 PLA Silk+
 PLA Silk Dual Color
+PLA Silk Tri-Color
 PLA Basic Gradient
 PLA Sparkle
 PLA Metal
@@ -16,8 +17,11 @@ PLA-CF
 PETG HF
 PETG Translucent
 PETG-CF
+Matte PETG
 ABS
 ABS-GF
+ABS-ESD
+ABS-Kevlar
 ASA
 ASA-CF
 ASA Aero
@@ -35,68 +39,49 @@ Support for PLA
 Support for PA/PET
 Support for PLA/PETG
 Support for ABS
-PLA
 PLA Recycled
 rPLA
-PETG
-PETG Recycled
-PETG Carbon Fiber
+rPETG
+Bio-PETG
 PETG V0
 PVB
-ASA
 PC Blend
 PC Blend Carbon Fiber
 PA11 Carbon Fiber
 PP Carbon Fiber
 Woodfill
-PLA
-PLA+
-PLA-Matte
-PLA-Silk
 PLA-LW
-PETG
-ABS
-ABS+
-ASA
 PolyLite PLA
 PolyLite ASA
 PolyLite LW-PLA
 Panchroma Matte PLA
+Panchroma Silk
+Panchroma Starlight
+Panchroma Galaxy
+HT-PLA
+HT-PLA-GF
 PolyMax PC
 PolyFlex TPU95-HF
 PolySonic PLA
 PolyTerra PLA
-PLA
-PLA+
 PLA Meta
-PLA Matte
 PLA High Speed
 PLA High Speed Marble
-PLA Silk
-PLA Silk (Multi-Color)
 PLA Rainbow
-PLA Wood
-PLA Carbon Fiber
-PLA Marble
 PLA Twinkling
-PLA Glow in the Dark
-PETG
 PETG Rainbow
-PETG Glow in the Dark
 PETG High Speed Matte
-PETG Carbon Fiber
-ABS
-TPU
-TPU-Silk
-ASA
 Nylon (PA6-CF)
 Nylon (PA12-CF)
+Graphene-PA12
 PC-ABS
-PLA
-PET-G
-PET-G Matt
 PCTG
 Industrial Recycled-PET-G
-TPU
-ABS
 ASA-X
+PEEK
+PEKK
+PPSU
+Ultem 1010
+Ultem 9085
+PVDF
+Nanovia Flex V0

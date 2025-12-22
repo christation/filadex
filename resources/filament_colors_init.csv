@@ -42,6 +42,10 @@ Bambu Lab,Marine Blue,#2397D1
 Bambu Lab,Charcoal,#414141
 Bambu Lab,Royal Purple,#483D8B
 Bambu Lab,Nebulae,#495758
+Bambu Lab,Galaxy Purple,#594177
+Bambu Lab,Galaxy Green,#3B665E
+Bambu Lab,Galaxy Brown,#684A43
+Bambu Lab,Desert Tan,#C2B280
 Bambu Lab,Black,#393533
 Bambu Lab,Lava Gray,#4B4E53
 Bambu Lab,Yellow,#FFD00B
@@ -88,6 +92,11 @@ Prusament,Mango Yellow,#F4BB44
 Prusament,Prusa Orange,#EB5405
 Prusament,Prusa Orange Transparent,#F17231
 Prusament,Terracotta Light,#E2725B
+Prusament,Noctua Beige,#D4CAB6
+Prusament,Noctua Brown,#5D4037
+Prusament,Goldfish,#FF9E1B
+Prusament,Bio-Based Khaki,#8F9779
+Prusament,Oh My Gold,#D4AF37
 eSun,White,#FFFFFF
 eSun,Cold White,#E6E6FA
 eSun,Black,#000000
@@ -128,6 +137,7 @@ Polymaker,Cotton White,#E6DDDB
 Polymaker,Army Beige,#CCA897
 Polymaker,Army Brown,#724E3D
 Polymaker,Earth Brown,#7C594A
+Polymaker,Mocha Mousse (Pantone 2025),#957B69
 Polymaker,Muted White,#AFA198
 Polymaker,Pastel Peanut,#C29572
 Polymaker,Wood Brown,#AD7441
@@ -147,8 +157,12 @@ Polymaker,White,#D9DFE3
 Polymaker,White,#DDDFDA
 Polymaker,Red,#E01A0C
 Polymaker,Black/Grey,#333333
-Polymaker,Black/Grey,#333333
-Polymaker,Black/Grey,#1A1A1A
+Polymaker,Starlight Midnight,#191970
+Polymaker,Starlight Pulsar,#800080
+Polymaker,Silk Fire,#FF4500
+Polymaker,Silk Water,#00FFFF
+Polymaker,Silk Earth,#8B4513
+Polymaker,Celestial White,#F8F8FF
 Sunlu,Marble,#D3D3D3
 Sunlu,Wood,#DEB887
 Sunlu,Black/Grey,#1A1A1A
@@ -158,6 +172,20 @@ Sunlu,Luminous,#F0FFF0
 Sunlu,Black/Grey,#1A1A1A
 Sunlu,Black,#3A3C3B
 Sunlu,Black,#414142
-Sunlu, PA12-CF)",Black/Grey,#1A1A1A
+Sunlu,Black/Grey,#1A1A1A
 Redline,Gelb (Yellow),#F3BD00
 Redline,Glitzer Platinsilber,#7C7A7A
+Anycubic,Peach Fuzz (Pantone 2024),#FFBE98
+CookieCAD,Unicorn Elixir,#E0B0FF
+CookieCAD,Mermaid Elixir,#00A693
+CookieCAD,Stardust Black,#1A1A1A
+CookieCAD,Pale Pink,#FFD1DC
+CookieCAD,Mint Green,#98FF98
+Eryone,Silk Dual Black-Red,#540000
+Eryone,Silk Dual Blue-Green,#008B8B
+Eryone,Silk Tri-Color Gold-Red-Purple,#D4AF37
+Fiberlogy,Matte Navy Blue,#000080
+Fiberlogy,Matte Concrete,#808080
+Fiberlogy,Matte Army Green,#4B5320
+FormFutura,Galaxy Silver,#C0C0C0
+Greengate 3D,Purple Reign,#663399

@@ -5,12 +5,12 @@ import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
 // Import language files
-import en from './locales/en';
-import de from './locales/de';
+import enTranslations from './locales/en';
+import deTranslations from './locales/de';
 
 const translations = {
-  en,
-  de,
+  en: enTranslations,
+  de: deTranslations,
 };
 
 interface LanguageProviderProps {
@@ -20,6 +20,17 @@ interface LanguageProviderProps {
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>('en');
   const { toast } = useToast();
+  
+  // Temporary translation function for error messages before language is initialized
+  const tempT = (key: string): string => {
+    const keys = key.split('.');
+    let result: any = enTranslations;
+    for (const k of keys) {
+      if (result[k] === undefined) return key;
+      result = result[k];
+    }
+    return typeof result === 'string' ? result : key;
+  };
 
   // Check if we're on a public route
   const isPublicRoute = () => {
@@ -48,9 +59,10 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     },
     onError: (error) => {
       console.error('Error updating language preference:', error);
+      // Use temporary translation function since language might not be initialized yet
       toast({
-        title: 'Error',
-        description: 'Failed to update language preference',
+        title: tempT('common.error'),
+        description: tempT('settings.failedToUpdateLanguagePreference'),
         variant: 'destructive'
       });
     }

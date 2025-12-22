@@ -9,6 +9,7 @@ import {
 import { users, type User, type InsertUser } from "@shared/schema";
 import { db } from "./db";
 import { eq, sql, and, inArray } from "drizzle-orm";
+import { logger } from "./utils/logger";
 
 // Modify the interface with any CRUD methods
 // you might need
@@ -94,7 +95,7 @@ export class DatabaseStorage implements IStorage {
       throw new Error(`User with ID ${userId} not found`);
     }
 
-    console.log(`Getting public filaments for user: ${user.username} (ID: ${userId})`);
+    logger.debug(`Getting public filaments for user: ${user.username} (ID: ${userId})`);
 
     // Get filaments
     const allFilaments = await this.getFilaments(userId);
@@ -102,7 +103,7 @@ export class DatabaseStorage implements IStorage {
     // Apply filter if provided
     const filteredFilaments = filterFn ? allFilaments.filter(filterFn) : allFilaments;
 
-    console.log(`Found ${filteredFilaments.length} public filaments for user ${user.username}`);
+    logger.debug(`Found ${filteredFilaments.length} public filaments for user ${user.username}`);
 
     // Return filaments with user information
     return {
@@ -115,26 +116,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getFilament(id: number, userId: number): Promise<Filament | undefined> {
-    console.log(`DEBUG: getFilament called with id=${id}, userId=${userId}`);
-    console.log(`DEBUG: id type: ${typeof id}, userId type: ${typeof userId}`);
-
     try {
       const query = db.select().from(filaments)
         .where(eq(filaments.id, id))
         .where(eq(filaments.userId, userId));
 
-      console.log(`DEBUG: SQL query: ${query.toSQL().sql}`);
-
       const [filament] = await query;
-
-      console.log(`DEBUG: getFilament result:`, filament ? "Found" : "Not found");
-      if (filament) {
-        console.log(`DEBUG: Filament details: id=${filament.id}, name=${filament.name}`);
-      }
 
       return filament || undefined;
     } catch (err) {
-      console.error(`DEBUG: Error in getFilament:`, err);
+      logger.error(`Error in getFilament:`, err);
       throw err;
     }
   }
@@ -148,9 +139,6 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateFilament(id: number, updateFilament: Partial<InsertFilament>, userId: number): Promise<Filament | undefined> {
-    console.log(`DEBUG: updateFilament called with id=${id}, userId=${userId}`);
-    console.log(`DEBUG: updateFilament data:`, updateFilament);
-
     try {
       const query = db
         .update(filaments)
@@ -159,18 +147,11 @@ export class DatabaseStorage implements IStorage {
         .where(eq(filaments.userId, userId))
         .returning();
 
-      console.log(`DEBUG: SQL update query: ${query.toSQL().sql}`);
-
       const [updated] = await query;
-
-      console.log(`DEBUG: updateFilament result:`, updated ? "Updated" : "Not updated");
-      if (updated) {
-        console.log(`DEBUG: Updated filament details: id=${updated.id}, name=${updated.name}`);
-      }
 
       return updated || undefined;
     } catch (err) {
-      console.error(`DEBUG: Error in updateFilament:`, err);
+      logger.error(`Error in updateFilament:`, err);
       throw err;
     }
   }
@@ -200,7 +181,7 @@ export class DatabaseStorage implements IStorage {
       )
       .returning();
 
-    console.log(`Batch deleted ${count} filaments with IDs:`, validIds);
+    logger.info(`Batch deleted ${count} filaments with IDs:`, validIds);
     return count;
   }
 
@@ -220,7 +201,7 @@ export class DatabaseStorage implements IStorage {
       )
       .returning();
 
-    console.log(`Batch updated ${count} filaments with IDs:`, validIds);
+    logger.info(`Batch updated ${count} filaments with IDs:`, validIds);
     return count;
   }
 

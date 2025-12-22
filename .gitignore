@@ -21,6 +21,7 @@ build/
 docker-compose.yml
 docker-compose.override.yml
 docker-compose.*.yml
+docker-compose.local.yml
 .private.docker-compose.yml
 !docker-compose.template.yml
 
@@ -83,3 +84,19 @@ out/
 .dynamodb/
 .tern-port
 .history/
+
+# Cursor / AI Agent files
+.cursorrules
+.cursor/
+.cursor/**
+*.cursorrules
+.cursor-*
+.ai/
+
+# Playwright MCP
+playwright-mcp/
+**/playwright-mcp/
+*.playwright-mcp*
+
+# Project-specific
+TODO.md

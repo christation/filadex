@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useTranslation } from "@/i18n";
+import { useUnits } from "@/lib/use-units";
+import { formatCurrency } from "@/lib/units";
 
 interface MaterialDistribution {
   name: string;
@@ -28,6 +30,7 @@ interface Statistics {
 export function StatisticsAccordion() {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation();
+  const { currency } = useUnits();
 
   // Fetch statistics from the server
   const { data: statistics, isLoading } = useQuery<Statistics>({
@@ -88,20 +91,20 @@ export function StatisticsAccordion() {
             </div>
 
             {/* Material Distribution */}
-            <div className="space-y-2 dark:bg-neutral-900 light:bg-gray-50 p-3 rounded-lg">
-              <h3 className="dark:text-neutral-400 light:text-gray-700 font-medium border-b dark:border-neutral-800 light:border-gray-200 pb-1">{t('statistics.materialDistribution')}</h3>
+            <div className="space-y-2 dark:bg-neutral-900 light:bg-gray-50 p-4 rounded-lg overflow-hidden">
+              <h3 className="dark:text-neutral-400 light:text-gray-700 font-medium border-b dark:border-neutral-800 light:border-gray-200 pb-1 mb-2">{t('statistics.materialDistribution')}</h3>
               {!isLoading && statistics?.materialDistribution && statistics.materialDistribution.map((item) => (
-                <div key={item.name} className="grid grid-cols-8 items-center gap-2">
-                  <span className="dark:text-neutral-300 light:text-gray-700 col-span-2">{item.name}:</span>
-                  <div className="flex items-center col-span-5">
-                    <div className="w-full h-2 dark:bg-neutral-800 light:bg-gray-200 rounded-full mr-2 overflow-hidden">
+                <div key={item.name} className="grid grid-cols-12 items-center gap-2 min-w-0">
+                  <span className="dark:text-neutral-300 light:text-gray-700 col-span-4 min-w-0">{item.name}:</span>
+                  <div className="flex items-center col-span-6 min-w-0">
+                    <div className="w-full h-1.5 dark:bg-neutral-800 light:bg-gray-200 rounded-full mr-2 overflow-hidden">
                       <div
                         className="h-full theme-primary-bg"
                         style={{ width: `${item.percentage}%` }}
                       />
                     </div>
                   </div>
-                  <span className="font-medium dark:text-neutral-400 light:text-gray-800 col-span-1 text-right">{item.percentage}%</span>
+                  <span className="font-medium dark:text-neutral-400 light:text-gray-800 col-span-2 text-right whitespace-nowrap pr-1">{item.percentage}%</span>
                 </div>
               ))}
 
@@ -140,13 +143,13 @@ export function StatisticsAccordion() {
               <div className="flex justify-between">
                 <span className="dark:text-neutral-300 text-gray-700">{t('statistics.estimatedRemainingValue')}:</span>
                 <span className="font-medium text-green-500 dark:text-green-400">
-                  {isLoading ? "..." : `${statistics?.estimatedValue || 0} €`}
+                  {isLoading ? "..." : formatCurrency(statistics?.estimatedValue || 0, currency)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="dark:text-neutral-300 text-gray-700">{t('statistics.totalPurchaseValue')}:</span>
                 <span className="font-medium text-amber-500 dark:text-amber-400">
-                  {isLoading ? "..." : `${statistics?.totalPurchaseValue || 0} €`}
+                  {isLoading ? "..." : formatCurrency(statistics?.totalPurchaseValue || 0, currency)}
                 </span>
               </div>
 

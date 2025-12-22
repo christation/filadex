@@ -169,7 +169,7 @@ export function ThemeSelector({ open, onOpenChange }: ThemeSelectorProps) {
                   type="text"
                   value={customColor}
                   onChange={(e) => setCustomColor(e.target.value)}
-                  placeholder="#HEX"
+                  placeholder={t('settings.customColorPlaceholder')}
                   className="flex-1 rounded-md border border-input bg-transparent px-3 py-2 text-sm"
                 />
                 <Button variant="outline" onClick={handleApplyCustom}>
