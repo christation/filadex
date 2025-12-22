@@ -13,7 +13,8 @@ import {
   ChevronDown,
   List,
   CheckSquare,
-  Square
+  Square,
+  Gauge
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -56,6 +57,7 @@ export function Header({
 }: HeaderProps) {
   const [themeDialogOpen, setThemeDialogOpen] = useState(false);
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
+  const [settingsDialogTab, setSettingsDialogTab] = useState<string | undefined>(undefined);
   const [userManagementOpen, setUserManagementOpen] = useState(false);
   const [sharingModalOpen, setSharingModalOpen] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
@@ -101,9 +103,19 @@ export function Header({
                 <Paintbrush className="mr-2 h-4 w-4" />
                 {t('settings.theme')}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSettingsDialogOpen(true)}>
+              <DropdownMenuItem onClick={() => {
+                setSettingsDialogTab(undefined);
+                setSettingsDialogOpen(true);
+              }}>
                 <List className="mr-2 h-4 w-4" />
                 {t('settings.listManagement')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => {
+                setSettingsDialogTab('units');
+                setSettingsDialogOpen(true);
+              }}>
+                <Gauge className="mr-2 h-4 w-4" />
+                {t('settings.units.title')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <div className="px-2 py-1.5">
@@ -200,7 +212,13 @@ export function Header({
 
       <SettingsDialog
         open={settingsDialogOpen}
-        onOpenChange={setSettingsDialogOpen}
+        onOpenChange={(open) => {
+          setSettingsDialogOpen(open);
+          if (!open) {
+            setSettingsDialogTab(undefined);
+          }
+        }}
+        initialTab={settingsDialogTab}
       />
 
       <UserManagementModal

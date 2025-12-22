@@ -10,6 +10,7 @@ import { Slider } from "@/components/ui/slider";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { MaterialColorChart } from "@/components/material-color-chart";
+import { useTranslation } from "@/i18n";
 
 type Filament = {
   id: number;
@@ -25,6 +26,7 @@ type Filament = {
 };
 
 export default function PublicFilamentsPage() {
+  const { t } = useTranslation();
   const { userId } = useParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMaterial, setSelectedMaterial] = useState<string>("all");
@@ -72,7 +74,7 @@ export default function PublicFilamentsPage() {
   const filaments = data?.filaments || [];
 
   // Extract username from the response
-  const sharingUsername = data?.user?.username || `User ${userId}`;
+  const sharingUsername = data?.user?.username || `${t('common.name')} ${userId}`;
 
   // Create a user object with the username
   const sharingUser = {
@@ -125,9 +127,9 @@ export default function PublicFilamentsPage() {
             <Logo />
           </div>
           <div className="flex flex-col items-center">
-            <h1 className="text-xl font-bold">Shared Filament Collection</h1>
+            <h1 className="text-xl font-bold">{t('filaments.sharedCollection')}</h1>
             <p className="text-sm text-white/80">
-              Shared by: <span className="font-bold text-white">{sharingUser.username}</span>
+              {t('filaments.sharedBy')} <span className="font-bold text-white">{sharingUser.username}</span>
             </p>
           </div>
           <div></div>
@@ -137,11 +139,11 @@ export default function PublicFilamentsPage() {
       <main className="container mx-auto px-4 py-6">
         {isLoading ? (
           <div className="flex justify-center items-center h-64">
-            <p className="text-lg">Loading filaments...</p>
+            <p className="text-lg">{t('filaments.loadingFilaments')}</p>
           </div>
         ) : error ? (
           <div className="flex justify-center items-center h-64">
-            <p className="text-lg text-red-500">Error loading filaments. This collection may not be shared.</p>
+            <p className="text-lg text-red-500">{t('filaments.errorLoading')}</p>
           </div>
         ) : (
           <>
@@ -149,7 +151,7 @@ export default function PublicFilamentsPage() {
               <div className="relative w-full md:w-1/3">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
-                  placeholder="Search filaments..."
+                  placeholder={t('filaments.searchFilaments')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -172,7 +174,7 @@ export default function PublicFilamentsPage() {
                 className="md:ml-2"
               >
                 <SlidersHorizontal className="mr-2 h-4 w-4" />
-                Filters
+                {t('filaments.filters')}
               </Button>
 
               {(selectedMaterial !== "all" || selectedManufacturer !== "all" || remainingRange[0] > 0 || remainingRange[1] < 100) && (
@@ -181,25 +183,25 @@ export default function PublicFilamentsPage() {
                   onClick={resetFilters}
                   className="md:ml-2"
                 >
-                  Reset Filters
+                  {t('filaments.resetFilters')}
                 </Button>
               )}
 
               <div className="ml-auto text-sm text-muted-foreground">
-                {filteredFilaments.length} filament{filteredFilaments.length !== 1 ? 's' : ''}
+                {filteredFilaments.length} {filteredFilaments.length !== 1 ? t('filaments.spools') : t('filaments.spools').slice(0, -1)}
               </div>
             </div>
 
             {showFilters && (
               <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-md bg-card">
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Material</label>
+                  <label className="text-sm font-medium mb-1 block">{t('filaments.material')}</label>
                   <Select value={selectedMaterial} onValueChange={setSelectedMaterial}>
                     <SelectTrigger>
-                      <SelectValue placeholder="All materials" />
+                      <SelectValue placeholder={t('filaments.allMaterials')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All materials</SelectItem>
+                      <SelectItem value="all">{t('filaments.allMaterials')}</SelectItem>
                       {materials.map((material) => (
                         <SelectItem key={material} value={material}>
                           {material}
@@ -210,13 +212,13 @@ export default function PublicFilamentsPage() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Manufacturer</label>
+                  <label className="text-sm font-medium mb-1 block">{t('filaments.manufacturer')}</label>
                   <Select value={selectedManufacturer} onValueChange={setSelectedManufacturer}>
                     <SelectTrigger>
-                      <SelectValue placeholder="All manufacturers" />
+                      <SelectValue placeholder={t('filaments.allManufacturers')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All manufacturers</SelectItem>
+                      <SelectItem value="all">{t('filaments.allManufacturers')}</SelectItem>
                       {manufacturers.map((manufacturer) => (
                         <SelectItem key={manufacturer} value={manufacturer}>
                           {manufacturer}
@@ -228,7 +230,7 @@ export default function PublicFilamentsPage() {
 
                 <div>
                   <label className="text-sm font-medium mb-1 block">
-                    Remaining: {remainingRange[0]}% - {remainingRange[1]}%
+                    {t('filaments.remaining')}: {remainingRange[0]}% - {remainingRange[1]}%
                   </label>
                   <Slider
                     value={remainingRange}
@@ -249,7 +251,7 @@ export default function PublicFilamentsPage() {
 
             {filteredFilaments.length === 0 ? (
               <div className="flex justify-center items-center h-64">
-                <p className="text-lg text-muted-foreground">No filaments found matching your filters.</p>
+                <p className="text-lg text-muted-foreground">{t('filaments.noFilamentsMatching')}</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">

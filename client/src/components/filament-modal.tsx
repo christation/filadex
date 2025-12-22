@@ -188,6 +188,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QRScanner } from "./qr-scanner";
 import { NFCScanner } from "./nfc-scanner";
+import { useUnits } from "@/lib/use-units";
+import { formatCurrency, formatTemperature, getTemperatureUnitSymbol, convertTemperature } from "@/lib/units";
 
 // Create a custom schema for the form with translations
 const createFormSchema = (t: (key: string) => string) => z.object({
@@ -247,6 +249,7 @@ export function FilamentModal({
   filament,
 }: FilamentModalProps) {
   const { t, language } = useTranslation();
+  const { currency, temperatureUnit } = useUnits();
   const isEditing = !!filament;
   const [remainingPercentage, setRemainingPercentage] = useState(100);
   const [totalWeight, setTotalWeight] = useState<number | string>(1);
@@ -509,46 +512,27 @@ export function FilamentModal({
 
       <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
         <DialogContent
-          className="sm:max-w-md max-h-[90vh] overflow-y-auto dark:bg-neutral-900 bg-white"
+          className="max-w-[95vw] sm:max-w-[90vw] md:max-w-4xl lg:max-w-5xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col p-0 gap-0 dark:bg-neutral-900 bg-white"
           aria-describedby="filament-form-description"
         >
-          <DialogHeader>
-            <DialogTitle>{isEditing ? t('filaments.editFilament') : t('filaments.addFilament')}</DialogTitle>
-            <DialogDescription id="filament-form-description">
-              {isEditing ? t('filaments.editFilamentDescription') : t('filaments.addFilamentDescription')}
-            </DialogDescription>
-          </DialogHeader>
+          <div className="flex-shrink-0 p-6 pb-4 border-b dark:border-neutral-700 border-gray-200">
+            <DialogHeader>
+              <DialogTitle>{isEditing ? t('filaments.editFilament') : t('filaments.addFilament')}</DialogTitle>
+              <DialogDescription id="filament-form-description">
+                {isEditing ? t('filaments.editFilamentDescription') : t('filaments.addFilamentDescription')}
+              </DialogDescription>
+            </DialogHeader>
+          </div>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="flex gap-2 mb-4 justify-end">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowQRScanner(true)}
-                  className="flex items-center"
-                >
-                  <Scan className="mr-2 h-4 w-4" />
-                  {t('common.scanQRCode')}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowNFCScanner(true)}
-                  className="flex items-center"
-                >
-                  <ScanFace className="mr-2 h-4 w-4" />
-                  {t('common.scanNFC')}
-                </Button>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+          <div className="flex-1 overflow-y-auto p-6">
+            <Form {...form}>
+              <form id="filament-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="name"
                   render={({ field }) => (
-                    <FormItem className="col-span-2">
+                    <FormItem className="md:col-span-2">
                       <FormLabel>{t('filaments.name')}*</FormLabel>
                       <FormControl>
                         <Input
@@ -680,7 +664,7 @@ export function FilamentModal({
                   control={form.control}
                   name="colorName"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="md:col-span-2">
                       <FormLabel>{t('filaments.color')}*</FormLabel>
                       <Select
                         onValueChange={(value) => {
@@ -784,7 +768,7 @@ export function FilamentModal({
                   control={form.control}
                   name="colorCode"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="md:col-span-2">
                       <FormLabel>{t('filaments.colorCode')}</FormLabel>
                       <FormControl>
                         <div className="flex">
@@ -848,11 +832,16 @@ export function FilamentModal({
                   name="printTemp"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('filaments.printTemp')} (°C)</FormLabel>
+                      <FormLabel>{t('filaments.printTemp')} ({getTemperatureUnitSymbol(temperatureUnit)})</FormLabel>
                       <FormControl>
                         <Input
                           placeholder={t('filaments.printTempPlaceholder')}
                           {...field}
+                          onChange={(e) => {
+                            // Convert temperature if needed when user types
+                            const value = e.target.value;
+                            field.onChange(value);
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -861,99 +850,100 @@ export function FilamentModal({
                 />
               </div>
 
-              <div className="border rounded-md p-4 dark:bg-neutral-900 bg-gray-50 dark:border-neutral-700 border-gray-200">
-                <h4 className="font-medium dark:text-neutral-400 text-gray-700 mb-3">{t('filaments.quantity')}</h4>
-                <div className="space-y-4">
-                  <div>
-                    <FormLabel>{t('filaments.totalWeight')} (kg)*</FormLabel>
-                    <Select
-                      onValueChange={handleTotalWeightChange}
-                      defaultValue={customWeightVisible ? "custom" : totalWeight.toString()}
-                      value={customWeightVisible ? "custom" : totalWeight.toString()}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder={t('filaments.selectTotalWeight')} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="0.25">0.25kg</SelectItem>
-                        <SelectItem value="0.5">0.5kg</SelectItem>
-                        <SelectItem value="0.75">0.75kg</SelectItem>
-                        <SelectItem value="1">1kg</SelectItem>
-                        <SelectItem value="1.5">1.5kg</SelectItem>
-                        <SelectItem value="2">2kg</SelectItem>
-                        <SelectItem value="2.5">2.5kg</SelectItem>
-                        <SelectItem value="3">3kg</SelectItem>
-                        <SelectItem value="5">5kg</SelectItem>
-                        <SelectItem value="custom">{t('common.custom')}</SelectItem>
-                      </SelectContent>
-                    </Select>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="border rounded-md p-4 dark:bg-neutral-900 bg-gray-50 dark:border-neutral-700 border-gray-200">
+                  <h4 className="font-medium dark:text-neutral-400 text-gray-700 mb-3">{t('filaments.quantity')}</h4>
+                  <div className="space-y-4">
+                    <div>
+                      <FormLabel>{t('filaments.totalWeight')} (kg)*</FormLabel>
+                      <Select
+                        onValueChange={handleTotalWeightChange}
+                        defaultValue={customWeightVisible ? "custom" : totalWeight.toString()}
+                        value={customWeightVisible ? "custom" : totalWeight.toString()}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={t('filaments.selectTotalWeight')} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="0.25">0.25kg</SelectItem>
+                          <SelectItem value="0.5">0.5kg</SelectItem>
+                          <SelectItem value="0.75">0.75kg</SelectItem>
+                          <SelectItem value="1">1kg</SelectItem>
+                          <SelectItem value="1.5">1.5kg</SelectItem>
+                          <SelectItem value="2">2kg</SelectItem>
+                          <SelectItem value="2.5">2.5kg</SelectItem>
+                          <SelectItem value="3">3kg</SelectItem>
+                          <SelectItem value="5">5kg</SelectItem>
+                          <SelectItem value="custom">{t('common.custom')}</SelectItem>
+                        </SelectContent>
+                      </Select>
 
-                    {customWeightVisible && (
-                      <div className="mt-2">
-                        <Input
-                          type="number"
-                          step="0.01"
-                          min="0.1"
-                          placeholder={t('filaments.enterWeightInKg')}
-                          value={typeof totalWeight === 'number' ? totalWeight : ''}
-                          onChange={handleCustomWeightChange}
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  <FormField
-                    control={form.control}
-                    name="remainingPercentage"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t('filaments.remainingPercentage')} (%)*</FormLabel>
-                        <div className="flex items-center">
-                          <FormControl>
-                            <Slider
-                              value={[field.value]}
-                              min={0}
-                              max={100}
-                              step={5}
-                              onValueChange={(values) => {
-                                const value = values[0];
-                                field.onChange(value);
-                                setRemainingPercentage(value);
-                              }}
-                              className="w-full mr-2"
-                            />
-                          </FormControl>
-                          <span className="font-medium dark:text-neutral-400 text-gray-700 w-10 text-right">
-                            {field.value}%
-                          </span>
+                      {customWeightVisible && (
+                        <div className="mt-2">
+                          <Input
+                            type="number"
+                            step="0.01"
+                            min="0.1"
+                            placeholder={t('filaments.enterWeightInKg')}
+                            value={typeof totalWeight === 'number' ? totalWeight : ''}
+                            onChange={handleCustomWeightChange}
+                          />
                         </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      )}
+                    </div>
 
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="dark:text-neutral-300 text-gray-600">{t('filaments.equivalentTo')}:</span>
-                      <span className="font-medium dark:text-neutral-400 text-gray-700">
-                        {calculateRemainingWeight()}kg
-                      </span>
+                    <FormField
+                      control={form.control}
+                      name="remainingPercentage"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('filaments.remainingPercentage')} (%)*</FormLabel>
+                          <div className="flex items-center">
+                            <FormControl>
+                              <Slider
+                                value={[field.value]}
+                                min={0}
+                                max={100}
+                                step={5}
+                                onValueChange={(values) => {
+                                  const value = values[0];
+                                  field.onChange(value);
+                                  setRemainingPercentage(value);
+                                }}
+                                className="w-full mr-2"
+                              />
+                            </FormControl>
+                            <span className="font-medium dark:text-neutral-400 text-gray-700 w-10 text-right">
+                              {field.value}%
+                            </span>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="dark:text-neutral-300 text-gray-600">{t('filaments.equivalentTo')}:</span>
+                        <span className="font-medium dark:text-neutral-400 text-gray-700">
+                          {calculateRemainingWeight()}kg
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="border rounded-md p-4 dark:bg-neutral-900 bg-gray-50 dark:border-neutral-700 border-gray-200">
-                <h4 className="font-medium dark:text-neutral-400 text-gray-700 mb-3">{t('filaments.additionalInfo')}</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="purchaseDate"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>{t('filaments.purchaseDate')}</FormLabel>
+                <div className="border rounded-md p-4 dark:bg-neutral-900 bg-gray-50 dark:border-neutral-700 border-gray-200">
+                  <h4 className="font-medium dark:text-neutral-400 text-gray-700 mb-3">{t('filaments.additionalInfo')}</h4>
+                  <div className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="purchaseDate"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>{t('filaments.purchaseDate')}</FormLabel>
                         <Popover>
                           <PopoverTrigger asChild>
                             <FormControl>
@@ -990,12 +980,12 @@ export function FilamentModal({
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="purchasePrice"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>{t('filaments.purchasePrice')} (€)</FormLabel>
+                    <FormField
+                      control={form.control}
+                      name="purchasePrice"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>{t('filaments.purchasePrice')} ({formatCurrency(0, currency).replace('0', '').trim()})</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -1014,12 +1004,12 @@ export function FilamentModal({
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="storageLocation"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>{t('filaments.storageLocation')}</FormLabel>
+                    <FormField
+                      control={form.control}
+                      name="storageLocation"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>{t('filaments.storageLocation')}</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           value={field.value || ""}
@@ -1059,15 +1049,16 @@ export function FilamentModal({
                           </SelectContent>
                         </Select>
                         <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
               </div>
 
               <div className="border rounded-md p-4 dark:bg-neutral-900 bg-gray-50 dark:border-neutral-700 border-gray-200">
                 <h4 className="font-medium dark:text-neutral-400 text-gray-700 mb-3">{t('filaments.status')}</h4>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="status"
@@ -1120,7 +1111,7 @@ export function FilamentModal({
                 </div>
 
                 <h4 className="font-medium dark:text-neutral-400 text-gray-700 mb-3 mt-4">{t('filaments.drying')}</h4>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="dryerCount"
@@ -1190,40 +1181,44 @@ export function FilamentModal({
                 </div>
               </div>
 
-              <DialogFooter className="pt-2 border-t dark:border-neutral-700 border-gray-200">
-                <div className="flex items-center mr-auto space-x-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setShowQRScanner(true)}
-                    title={t('common.scanQRCode')}
-                  >
-                    <Scan className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setShowNFCScanner(true)}
-                    title={t('common.scanNFC')}
-                  >
-                    <ScanFace className="h-4 w-4" />
-                  </Button>
-                </div>
+              </form>
+            </Form>
+          </div>
+
+          <div className="flex-shrink-0 p-6 pt-4 border-t dark:border-neutral-700 border-gray-200">
+            <DialogFooter className="pt-0">
+              <div className="flex items-center mr-auto space-x-2">
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={onClose}
+                  size="icon"
+                  onClick={() => setShowQRScanner(true)}
+                  title={t('common.scanQRCode')}
                 >
-                  {t('common.cancel')}
+                  <Scan className="h-4 w-4" />
                 </Button>
-                <Button type="submit">
-                  {t('common.save')}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setShowNFCScanner(true)}
+                  title={t('common.scanNFC')}
+                >
+                  <ScanFace className="h-4 w-4" />
                 </Button>
-              </DialogFooter>
-            </form>
-          </Form>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+              >
+                {t('common.cancel')}
+              </Button>
+              <Button type="submit" form="filament-form">
+                {t('common.save')}
+              </Button>
+            </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </>

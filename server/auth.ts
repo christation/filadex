@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { db } from "./db";
 import { users } from "../shared/schema";
 import { eq } from "drizzle-orm";
+import { logger } from "./utils/logger";
 
 // Secret key for JWT
 const JWT_SECRET = process.env.JWT_SECRET || "filadex-secret-key";
@@ -98,9 +99,9 @@ export async function initializeAdminUser() {
         isAdmin: true,
         forceChangePassword: true
       });
-      console.log("Default admin user created");
+      logger.info("Default admin user created");
     }
   } catch (error) {
-    console.error("Error initializing admin user:", error);
+    logger.error("Error initializing admin user:", error);
   }
 }

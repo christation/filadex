@@ -4,8 +4,10 @@ import { Moon, Sun } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/i18n";
 
 export function ThemeToggle() {
+  const { t } = useTranslation();
   const [theme, setTheme] = useState<"light" | "dark">("dark");
   const { toast } = useToast();
 
@@ -26,15 +28,15 @@ export function ThemeToggle() {
     onSuccess: () => {
       refetch(); // Refetch theme data after successful update
       toast({
-        title: "Theme updated",
-        description: `Switched to ${theme === "dark" ? "light" : "dark"} mode`
+        title: t('settings.themeUpdated'),
+        description: theme === "dark" ? t('settings.switchToLightMode') : t('settings.switchToDarkMode')
       });
     },
     onError: (error) => {
       console.error("Error updating theme:", error);
       toast({
-        title: "Error",
-        description: "Failed to update theme.",
+        title: t('common.error'),
+        description: t('settings.themeUpdateError'),
         variant: "destructive"
       });
     }
@@ -96,7 +98,7 @@ export function ThemeToggle() {
       size="icon"
       onClick={toggleTheme}
       className={`${theme === 'dark' ? 'bg-primary/20 hover:bg-primary/30 text-white border-white/20' : 'bg-white hover:bg-gray-100 text-gray-800 border-gray-200'}`}
-      title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+      title={theme === "dark" ? t('settings.switchToLightModeTitle') : t('settings.switchToDarkModeTitle')}
     >
       {theme === "dark" ? (
         <Sun className="h-4 w-4" />

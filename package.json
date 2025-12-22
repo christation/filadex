@@ -9,7 +9,11 @@
     "vite:build": "vite build",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "db:init": "tsx init-data.ts",
+    "setup": "bash scripts/setup-local.sh",
+    "lint": "tsc --noEmit",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

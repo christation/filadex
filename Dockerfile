@@ -12,22 +12,17 @@ RUN npm ci
 
 # Copy source code
 COPY . .
-# Copy migration script
-COPY run-migration.js ./run-migration.js
 
-# Build the application - only build the frontend
-RUN npm run vite:build
-# Create a simple server file
-RUN mkdir -p dist
-COPY server.js dist/index.js
-# Create server directory structure
-RUN mkdir -p dist/server dist/shared dist/migrations
-# Copy schema.js to the correct location
-COPY shared/schema.js dist/shared/schema.js
-# Copy migrations
-COPY migrations/ dist/migrations/
-# Copy server directory to dist/server
-COPY server/ dist/server/
+# Build the application - build both frontend and backend
+RUN npm run build
+# Create server directory structure for migrations and init scripts
+RUN mkdir -p dist/migrations
+# Copy TypeScript migration files (will be run with tsx) - use shell to handle optional files
+RUN if ls migrations/*.ts 1> /dev/null 2>&1; then cp migrations/*.ts dist/migrations/; fi
+# Copy init-data.ts for database initialization
+COPY init-data.ts dist/
+# Copy run-migration.ts
+COPY run-migration.ts dist/
 
 # Production image
 FROM node:20-alpine as production
@@ -44,16 +39,18 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Install production dependencies
+# Install production dependencies including tsx for running TypeScript scripts
 RUN npm ci --omit=dev
+# Install tsx and TypeScript for running migration scripts
+RUN npm install --save-dev tsx typescript
 # Install PostgreSQL client and database dependencies
 RUN npm install pg drizzle-orm zod
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/server ./server
 COPY --from=build /app/shared ./shared
-COPY --from=build /app/migrations ./migrations
-COPY --from=build /app/init-data.js ./init-data.js
-COPY run-migration.js ./run-migration.js
+RUN mkdir -p ./migrations && if [ -d /app/dist/migrations ] && [ "$(ls -A /app/dist/migrations 2>/dev/null)" ]; then cp -r /app/dist/migrations/* ./migrations/; fi || true
+COPY --from=build /app/init-data.ts ./init-data.ts
+COPY --from=build /app/run-migration.ts ./run-migration.ts
 
 # Kopiere das Entrypoint-Skript
 COPY docker-entrypoint.sh /docker-entrypoint.sh

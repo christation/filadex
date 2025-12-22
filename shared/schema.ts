@@ -9,6 +9,8 @@ export const users = pgTable("users", {
   isAdmin: boolean("is_admin").default(false),
   forceChangePassword: boolean("force_change_password").default(true),
   language: text("language").default("en"),
+  currency: text("currency").default("EUR"),
+  temperatureUnit: text("temperature_unit").default("C"),
   lastLogin: timestamp("last_login"),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -40,6 +42,8 @@ export const insertUserSchema = createInsertSchema(users).pick({
   isAdmin: true,
   forceChangePassword: true,
   language: true,
+  currency: true,
+  temperatureUnit: true,
 });
 
 export const changePasswordSchema = z.object({

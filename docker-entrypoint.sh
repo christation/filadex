@@ -74,6 +74,8 @@ PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d "$PGDATABASE" -v
     is_admin BOOLEAN DEFAULT FALSE,
     force_change_password BOOLEAN DEFAULT TRUE,
     language TEXT DEFAULT 'en',
+    currency TEXT DEFAULT 'EUR',
+    temperature_unit TEXT DEFAULT 'C',
     last_login TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
   );
@@ -164,6 +166,26 @@ else
   echo "Language column already exists."
 fi
 
+# Add currency column if it doesn't exist
+CURRENCY_COLUMN_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d "$PGDATABASE" -tAc "SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'users' AND column_name = 'currency')")
+if [ "$CURRENCY_COLUMN_EXISTS" = "f" ]; then
+  echo "Adding currency column to users table..."
+  PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d "$PGDATABASE" -v ON_ERROR_STOP=0 -c "ALTER TABLE public.users ADD COLUMN currency TEXT DEFAULT 'EUR';"
+  echo "Currency column added."
+else
+  echo "Currency column already exists."
+fi
+
+# Add temperature_unit column if it doesn't exist
+TEMPERATURE_COLUMN_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d "$PGDATABASE" -tAc "SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'users' AND column_name = 'temperature_unit')")
+if [ "$TEMPERATURE_COLUMN_EXISTS" = "f" ]; then
+  echo "Adding temperature_unit column to users table..."
+  PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d "$PGDATABASE" -v ON_ERROR_STOP=0 -c "ALTER TABLE public.users ADD COLUMN temperature_unit TEXT DEFAULT 'C';"
+  echo "Temperature unit column added."
+else
+  echo "Temperature unit column already exists."
+fi
+
 # Insert sample data, but only if explicitly requested via INIT_SAMPLE_DATA environment variable
 echo "Checking for existing data..."
 
@@ -214,7 +236,7 @@ fi
 
 # Run the migration to add user_id column
 echo "Running migration to add user_id column to filaments table..."
-node run-migration.js || echo "Migration failed, but continuing..."
+npx tsx run-migration.ts || echo "Migration failed, but continuing..."
 
 # Start the application
 echo "Starting application..."

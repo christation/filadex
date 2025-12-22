@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { Filament } from "@shared/schema";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -68,6 +69,7 @@ interface FilterSidebarProps {
   onMinRemaining: (value: number) => void;
   onManufacturerChange: (manufacturers: string[]) => void;
   onColorChange: (colors: string[]) => void;
+  filaments?: Filament[];
 }
 
 export function FilterSidebar({
@@ -75,7 +77,8 @@ export function FilterSidebar({
   onMaterialChange,
   onMinRemaining,
   onManufacturerChange,
-  onColorChange
+  onColorChange,
+  filaments = []
 }: FilterSidebarProps) {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
@@ -99,6 +102,37 @@ export function FilterSidebar({
     queryKey: ['/api/colors'],
     queryFn: () => apiRequest<Color[]>('/api/colors')
   });
+
+  // Filter manufacturers, materials, and colors to only show those that exist in actual filaments
+  const availableManufacturers = useMemo(() => {
+    if (filaments.length === 0) return [];
+    const usedManufacturers = new Set(
+      filaments
+        .map(f => f.manufacturer)
+        .filter((m): m is string => !!m)
+    );
+    return manufacturers.filter(m => usedManufacturers.has(m.name));
+  }, [manufacturers, filaments]);
+
+  const availableMaterials = useMemo(() => {
+    if (filaments.length === 0) return [];
+    const usedMaterials = new Set(
+      filaments
+        .map(f => f.material)
+        .filter((m): m is string => !!m)
+    );
+    return materials.filter(m => usedMaterials.has(m.name));
+  }, [materials, filaments]);
+
+  const availableColors = useMemo(() => {
+    if (filaments.length === 0) return [];
+    const usedColors = new Set(
+      filaments
+        .map(f => f.colorName)
+        .filter((c): c is string => !!c)
+    );
+    return colors.filter(c => usedColors.has(c.name));
+  }, [colors, filaments]);
 
   // Update parent component when filters change
   useEffect(() => {
@@ -224,7 +258,7 @@ export function FilterSidebar({
                 className="w-full justify-between dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-100 bg-white border-gray-300 text-gray-800 hover:bg-gray-100 hover:text-gray-900"
               >
                 {selectedManufacturers.length === 0
-                  ? t('filters.addManufacturer')
+                  ? t('filters.selectManufacturer')
                   : `${selectedManufacturers.length} ${t('filters.selected')}`}
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
@@ -234,7 +268,7 @@ export function FilterSidebar({
                 <CommandInput placeholder={t('filters.searchManufacturer')} />
                 <CommandEmpty>{t('filters.noManufacturerFound')}</CommandEmpty>
                 <CommandGroup className="max-h-[300px] overflow-y-auto">
-                  {manufacturers.map((manufacturer) => (
+                  {availableManufacturers.map((manufacturer) => (
                     <CommandItem
                       key={manufacturer.id}
                       value={manufacturer.name}
@@ -298,7 +332,7 @@ export function FilterSidebar({
                 className="w-full justify-between dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-100 bg-white border-gray-300 text-gray-800 hover:bg-gray-100 hover:text-gray-900"
               >
                 {selectedMaterials.length === 0
-                  ? t('filters.addMaterial')
+                  ? t('filters.selectMaterial')
                   : `${selectedMaterials.length} ${t('filters.selected')}`}
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
@@ -308,7 +342,7 @@ export function FilterSidebar({
                 <CommandInput placeholder={t('filters.searchMaterial')} />
                 <CommandEmpty>{t('filters.noMaterialFound')}</CommandEmpty>
                 <CommandGroup className="max-h-[300px] overflow-y-auto">
-                  {materials.map((material) => (
+                  {availableMaterials.map((material) => (
                     <CommandItem
                       key={material.id}
                       value={material.name}
@@ -372,7 +406,7 @@ export function FilterSidebar({
                 className="w-full justify-between dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-neutral-100 bg-white border-gray-300 text-gray-800 hover:bg-gray-100 hover:text-gray-900"
               >
                 {selectedColors.length === 0
-                  ? t('filters.addColor')
+                  ? t('filters.selectColor')
                   : `${selectedColors.length} ${t('filters.selected')}`}
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
@@ -382,7 +416,7 @@ export function FilterSidebar({
                 <CommandInput placeholder={t('filters.searchColor')} />
                 <CommandEmpty>{t('filters.noColorFound')}</CommandEmpty>
                 <CommandGroup className="max-h-[300px] overflow-y-auto">
-                  {colors.map((color) => (
+                  {availableColors.map((color) => (
                     <CommandItem
                       key={color.id}
                       value={color.name}

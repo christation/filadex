@@ -382,7 +382,7 @@ export default function Home() {
   const handleBatchUpdate = (ids: number[], updates: Partial<Filament> & { _refresh?: boolean, _showToast?: boolean }) => {
     // Check if this is a refresh-only call
     if (updates._refresh) {
-      console.log("Refreshing data after batch update");
+      // Refreshing data after batch update
       // Force refetch of data
       refetchFilaments();
       queryClient.invalidateQueries({ queryKey: ['/api/filaments'] });
@@ -413,7 +413,7 @@ export default function Home() {
       console.error("No valid IDs to update");
       toast({
         title: t('common.error'),
-        description: "No valid filaments selected for update",
+        description: t('batch.noValidFilamentsSelected'),
         variant: "destructive",
       });
       return;
@@ -496,6 +496,7 @@ export default function Home() {
               onMinRemaining={handleMinRemainingChange}
               onManufacturerChange={handleManufacturerChange}
               onColorChange={handleColorChange}
+              filaments={filaments}
             />
           </aside>
 
