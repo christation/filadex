@@ -142,4 +142,10 @@ export function SharingSettingsModal({ open, onOpenChange }: { open: boolean; on
                   Only filaments you've chosen to share will be visible to others.
                 </p>
               </CardContent>
-           
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </DialogContent>
+    </Dialog>
+  );
+}

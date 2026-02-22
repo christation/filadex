@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Scan, X } from "lucide-react";
-import { Html5Qrcode } from "html5-qrcode";
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode";
 import { useTranslation } from "@/i18n";
 
 interface QRScannerProps {
@@ -50,16 +50,6 @@ export function QRScanner({ onScanSuccess, onClose }: QRScannerProps) {
             fps: 10, // frames per second
             qrbox: { width: 250, height: 250 }, // size of scan area
             aspectRatio: 1, // aspect ratio
-            // Enable barcode formats in addition to QR codes
-            formatsToSupport: [
-              Html5Qrcode.FORMATS.QR_CODE,
-              Html5Qrcode.FORMATS.CODE_128,
-              Html5Qrcode.FORMATS.CODE_39,
-              Html5Qrcode.FORMATS.EAN_13,
-              Html5Qrcode.FORMATS.EAN_8,
-              Html5Qrcode.FORMATS.UPC_A,
-              Html5Qrcode.FORMATS.UPC_E
-            ]
           },
           (decodedText) => {
             // Successfully scanned

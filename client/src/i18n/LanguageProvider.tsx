@@ -44,9 +44,6 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     queryFn: () => apiRequest('/api/auth/me'),
     retry: false,
     enabled: !isPublicRoute(), // Skip this query for public routes
-    onError: () => {
-      // If not logged in or error, just use browser language or localStorage
-    }
   });
 
   // Update language preference mutation

@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { eq, and } from "drizzle-orm";
+import { eq, and, isNull } from "drizzle-orm";
 import { db } from "../db";
 import { users, userSharing } from "../../shared/schema";
 import { authenticate } from "../auth";
@@ -104,7 +104,7 @@ export function registerPublicRoutes(app: Express): void {
         .where(
           materialId
             ? and(eq(userSharing.userId, req.userId), eq(userSharing.materialId, materialId))
-            : and(eq(userSharing.userId, req.userId), eq(userSharing.materialId, null))
+            : and(eq(userSharing.userId, req.userId), isNull(userSharing.materialId))
         );
 
       if (existingSharing.length > 0) {

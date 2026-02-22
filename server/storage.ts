@@ -118,8 +118,7 @@ export class DatabaseStorage implements IStorage {
   async getFilament(id: number, userId: number): Promise<Filament | undefined> {
     try {
       const query = db.select().from(filaments)
-        .where(eq(filaments.id, id))
-        .where(eq(filaments.userId, userId));
+        .where(and(eq(filaments.id, id), eq(filaments.userId, userId)));
 
       const [filament] = await query;
 
@@ -143,8 +142,7 @@ export class DatabaseStorage implements IStorage {
       const query = db
         .update(filaments)
         .set(updateFilament)
-        .where(eq(filaments.id, id))
-        .where(eq(filaments.userId, userId))
+        .where(and(eq(filaments.id, id), eq(filaments.userId, userId)))
         .returning();
 
       const [updated] = await query;
@@ -159,8 +157,7 @@ export class DatabaseStorage implements IStorage {
   async deleteFilament(id: number, userId: number): Promise<boolean> {
     const [deleted] = await db
       .delete(filaments)
-      .where(eq(filaments.id, id))
-      .where(eq(filaments.userId, userId))
+      .where(and(eq(filaments.id, id), eq(filaments.userId, userId)))
       .returning();
     return !!deleted;
   }
@@ -171,7 +168,7 @@ export class DatabaseStorage implements IStorage {
     const validIds = ids.map(id => Number(id));
 
     // Use the in operator from drizzle instead of raw SQL
-    const { count } = await db
+    const deletedRows = await db
       .delete(filaments)
       .where(
         and(
@@ -179,7 +176,9 @@ export class DatabaseStorage implements IStorage {
           eq(filaments.userId, userId)
         )
       )
-      .returning();
+      .returning({ id: filaments.id });
+
+    const count = deletedRows.length;
 
     logger.info(`Batch deleted ${count} filaments with IDs:`, validIds);
     return count;
@@ -190,7 +189,7 @@ export class DatabaseStorage implements IStorage {
     const validIds = ids.map(id => Number(id));
 
     // Use the in operator from drizzle instead of raw SQL
-    const { count } = await db
+    const updatedRows = await db
       .update(filaments)
       .set(updates)
       .where(
@@ -199,7 +198,9 @@ export class DatabaseStorage implements IStorage {
           eq(filaments.userId, userId)
         )
       )
-      .returning();
+      .returning({ id: filaments.id });
+
+    const count = updatedRows.length;
 
     logger.info(`Batch updated ${count} filaments with IDs:`, validIds);
     return count;
@@ -435,7 +436,18 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.userCurrentId++;
-    const user: User = { ...insertUser, id };
+    const user: User = {
+      id,
+      username: insertUser.username,
+      password: insertUser.password,
+      isAdmin: insertUser.isAdmin ?? false,
+      forceChangePassword: insertUser.forceChangePassword ?? true,
+      language: insertUser.language ?? "en",
+      currency: insertUser.currency ?? "EUR",
+      temperatureUnit: insertUser.temperatureUnit ?? "C",
+      lastLogin: null,
+      createdAt: new Date(),
+    };
     this.users.set(id, user);
     return user;
   }
@@ -479,7 +491,26 @@ export class MemStorage implements IStorage {
 
   async createFilament(insertFilament: InsertFilament): Promise<Filament> {
     const id = this.filamentCurrentId++;
-    const filament: Filament = { ...insertFilament, id };
+    const filament: Filament = {
+      id,
+      userId: insertFilament.userId ?? null,
+      name: insertFilament.name,
+      manufacturer: insertFilament.manufacturer ?? null,
+      material: insertFilament.material,
+      colorName: insertFilament.colorName,
+      colorCode: insertFilament.colorCode ?? null,
+      diameter: insertFilament.diameter ?? null,
+      printTemp: insertFilament.printTemp ?? null,
+      totalWeight: insertFilament.totalWeight,
+      remainingPercentage: insertFilament.remainingPercentage,
+      purchaseDate: insertFilament.purchaseDate ?? null,
+      purchasePrice: insertFilament.purchasePrice ?? null,
+      status: insertFilament.status ?? null,
+      spoolType: insertFilament.spoolType ?? null,
+      dryerCount: insertFilament.dryerCount ?? 0,
+      lastDryingDate: insertFilament.lastDryingDate ?? null,
+      storageLocation: insertFilament.storageLocation ?? null,
+    };
     this.filamentStore.set(id, filament);
     return filament;
   }
